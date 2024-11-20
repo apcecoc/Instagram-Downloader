@@ -84,6 +84,11 @@ class InstagramDownloaderMod(loader.Module):
                                             file_path,
                                             caption=self.strings("success"),
                                         )
+
+                                        # Удаление файла после отправки
+                                        if os.path.exists(file_path):
+                                            os.remove(file_path)
+
                                         await message.delete()
                                     else:
                                         await utils.answer(message, self.strings("error"))
