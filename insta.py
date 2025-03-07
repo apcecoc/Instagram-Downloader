@@ -4,18 +4,20 @@ import os
 from telethon.tl.types import Message
 from .. import loader, utils
 
-__version__ = (1, 0, 1)
+__version__ = (1, 0, 2)
 
-#             █ █ ▀ █▄▀ ▄▀█ █▀█ ▀
-#             █▀█ █ █ █ █▀█ █▀▄ █
-#              © Copyright 2024
+#       █████  ██████   ██████ ███████  ██████  ██████   ██████ 
+#       ██   ██ ██   ██ ██      ██      ██      ██    ██ ██      
+#       ███████ ██████  ██      █████   ██      ██    ██ ██      
+#       ██   ██ ██      ██      ██      ██      ██    ██ ██      
+#       ██   ██ ██       ██████ ███████  ██████  ██████   ██████
+#
+#              © Copyright 2025
 #           https://t.me/apcecoc
 #
 # 🔒      Licensed under the GNU AGPLv3
 # 🌐 https://www.gnu.org/licenses/agpl-3.0.html
 
-# meta pic: https://example.com/instagram_icon.png
-# meta banner: https://example.com/instagram_banner.jpg
 # meta developer: @apcecoc
 # scope: hikka_only
 # scope: hikka_min 1.2.10
@@ -50,7 +52,7 @@ class InstagramDownloaderMod(loader.Module):
 
         await utils.answer(message, self.strings("processing"))
 
-        api_url = f"https://api.paxsenix.biz.id/dl/ig"
+        api_url = "https://api.paxsenix.biz.id/dl/ig"
         params = {"url": url}
         headers = {"accept": "*/*"}
 
@@ -63,29 +65,24 @@ class InstagramDownloaderMod(loader.Module):
                             await utils.answer(message, self.strings("error"))
                             return
 
-                        # Проходим по всем ссылкам на видео
-                        video_urls = [item.get("url") for item in data.get("url", []) if item.get("type") == "video"]
+                        video_urls = [item.get("url") for item in data.get("url", []) if item.get("type") in ["mp4", "video"]]
 
                         if video_urls:
                             for download_url in video_urls:
-                                # Генерация безопасного имени файла через хеширование URL
-                                file_name = hashlib.md5(download_url.encode('utf-8')).hexdigest() + ".mp4"
+                                file_name = hashlib.md5(download_url.encode("utf-8")).hexdigest() + ".mp4"
                                 file_path = f"/tmp/{file_name}"
 
                                 async with session.get(download_url) as file_resp:
                                     if file_resp.status == 200:
-                                        # Сохраняем видео в файл
                                         with open(file_path, "wb") as file:
                                             file.write(await file_resp.read())
 
-                                        # Отправка видео
                                         await message.client.send_file(
                                             message.peer_id,
                                             file_path,
                                             caption=self.strings("success"),
                                         )
 
-                                        # Удаление файла после отправки
                                         if os.path.exists(file_path):
                                             os.remove(file_path)
 
@@ -97,5 +94,5 @@ class InstagramDownloaderMod(loader.Module):
                     else:
                         await utils.answer(message, self.strings("error"))
         except Exception as e:
-            await utils.answer(message, self.strings("error"))
+            await utils.answer(message, f"❌ <b>Error:</b> {str(e)}")
             raise e
